@@ -86,10 +86,11 @@ create_suso_sheet <- function(source_questionnaire = "",
   # Get back Coding to Original Text and Translation
   # Get col of code itself
   if (!is.null(qcode_pattern)) {
+    # Text items without Translation must stay NA, otherwise paste0() turns them into "<coding>NA"
     qx.tsheet[!is.na(coding), `:=`
     (
       `Original text` = paste0(coding, `Original text`),
-      Translation = paste0(coding, Translation)
+      Translation = fifelse(is.na(Translation), NA_character_, paste0(coding, Translation))
     )][, "coding" := NULL]
   }
 

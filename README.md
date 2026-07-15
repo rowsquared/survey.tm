@@ -64,7 +64,7 @@ devtools::install_github("RowSquared/survey.tm", ref = "main")
 ### Set up
 
 To start using `survey.tm` for a data collection project, set up a
-“Translation Database Sheet” on Google Sheets. A single sheet is
+“Translation Database Sheet” on Google Sheets. A single document is
 recommended per project, regardless of the number of questionnaires or
 languages involved. There are two setup options:
 
@@ -215,11 +215,8 @@ using their questionnaire ID, which is a 32-character alphanumeric
 identifier.
 
 You can find this ID by logging in to the Survey Solutions Designer and
-accessing your questionnaire. The URL in your browser should look like
-`https://designer.mysurvey.solutions/questionnaire/details/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`,
-where the combination of x’s after `/details/` represents your
-questionnaire ID.
-
+accessing your questionnaire. The ID appears in the URL as
+`https://designer.mysurvey.solutions/questionnaire/details/<questionnaire_id>`
 </details>
 
 ``` r
@@ -365,6 +362,12 @@ your choice.
 
 To this end, use `create_suso_file()` which will write a .xlsx file that
 one can use to upload to the Survey Solutions Designer.
+
+Only text items whose `Status` is listed in `statuses` are merged in. Any
+other text item (e.g. one marked `don't translate`) is written with an
+empty ‘Translation’ cell, which makes Survey Solutions fall back to the
+original text. The function reports per sheet how many text items were
+left without a translation.
 </details>
 
 ``` r

@@ -9,7 +9,7 @@
 #'
 #'
 add_translation_odk <- function(tdb = list(),
-                                gs = NULL, # THE QUESTIONNAIRE SHEET OF ODK QX
+                                ss = NULL, # THE QUESTIONNAIRE SHEET OF ODK QX
                                 sheets = c("survey", "choices"), # ON WHICH SHEET IN QX
                                 translation.to.add = NULL, # WHICH TRANSLATION TO BE USED
                                 types = NULL # WHICH COLUMNS TO BE ADDED. BY DEFAULT ALL THOSE WHICH FOUND IN TRANSATLION FILE
@@ -65,7 +65,7 @@ add_translation_odk <- function(tdb = list(),
         #The current QX Sheet
         qx.sheet,
         #The translation sheet, subset by status user supplied
-        transsheet[Status %chin% c("DeepL", "reviewed", "translated"), .(value.unique, Translation)]
+        transsheet[Status %chin% c("DeepL", "reviewed", "translated","to translate"), .(value.unique, Translation)]
                         , by = "value.unique", all.x = T)
       #EITHER CREATE OR UPDATE TRANSLATION COL
       qx.sheet[,c(trans.col):=Translation][,"Translation":=NULL]
@@ -77,8 +77,8 @@ add_translation_odk <- function(tdb = list(),
       setorder(qx.sheet, rowid)
 
       # WRITE TO QUESTIONNAIRE FILE
-      write_tdb_data(
-        qx.sheet[, .SD, .SDcols = trans.col],
+      googlesheets4:: range_write(
+        data=qx.sheet[, .SD, .SDcols = trans.col],
         ss = ss,
         sheet = sheet,
         range = googlesheets4::cell_cols(col.start),

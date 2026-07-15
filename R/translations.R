@@ -19,7 +19,8 @@ update_tdb_lelement <- function(tdb,
     .(value.unique,
       `Questionnaire(s)` = questionnaire,
       Type = type,
-      Text_Item = value
+      Text_Item = value,
+      Status="to translate"
     )
   ]
 
@@ -34,7 +35,7 @@ update_tdb_lelement <- function(tdb,
   ), fill = TRUE)
 
   # Set Status to "to translate" if NA
-  dt[is.na(Translation), Status := "to translate"]
+  dt[is.na(Translation) & Status!="outdated" , Status := "to translate"]
 
   # Get in current sequential order, using the Master Questionnaire as reference
   dt <- merge(dt, source_titems[, .(value.unique, seq.id)], by = "value.unique", all.x = T)

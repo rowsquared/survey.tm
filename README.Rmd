@@ -54,7 +54,7 @@ devtools::install_github("RowSquared/survey.tm", ref = "main")
 
 ### Set up
 
-To start using `survey.tm` for a data collection project, set up a "Translation Database Sheet" on Google Sheets. A single sheet is recommended per project, regardless of the number of questionnaires or languages involved. There are two setup options: 
+To start using `survey.tm` for a data collection project, set up a "Translation Database Sheet" on Google Sheets. A single document is recommended per project, regardless of the number of questionnaires or languages involved. There are two setup options: 
 
 #### Option 1: Use `setup_tdb()` Function
 
@@ -191,8 +191,8 @@ Click to see detailed description
 
 To retrieve the current version and text items of the questionnaire(s) you're working with, you can use the `get_suso_tfiles()` function. This function downloads the [questionnaire templates](https://docs.mysurvey.solutions/questionnaire-designer/toolbar/multilingual-questionnaires/) in Excel format from the Survey Solutions Designer and stores them as nested lists in your environment. You can specify the questionnaires by using their questionnaire ID, which is a 32-character alphanumeric identifier. 
 
-You can find this ID by logging in to the Survey Solutions Designer and accessing your questionnaire. The URL in your browser should look like `https://designer.mysurvey.solutions/questionnaire/details/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`, where the combination of x's after `/details/` represents your questionnaire ID.
-
+You can find this ID by logging in to the Survey Solutions Designer and accessing your questionnaire. The ID appears in the URL as
+`https://designer.mysurvey.solutions/questionnaire/details/<questionnaire_id>`
 </details>
 
 
@@ -325,7 +325,9 @@ Click to see detailed description
 
 Using object `new_tdb`, one can now add the most recent translation to a questionnaire source template (as returned by `get_suso_tfiles()`) of your choice. 
 
-To this end, use `create_suso_file()` which will write a .xlsx file that one can use to upload to the Survey Solutions Designer. 
+To this end, use `create_suso_file()` which will write a .xlsx file that one can use to upload to the Survey Solutions Designer.
+
+Only text items whose `Status` is listed in `statuses` are merged in. Any other text item (e.g. one marked `don't translate`) is written with an empty 'Translation' cell, which makes Survey Solutions fall back to the original text. The function reports per sheet how many text items were left without a translation.
 </details>
 
 ```  {r create_suso_file, eval=FALSE}
