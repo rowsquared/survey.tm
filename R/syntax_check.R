@@ -166,6 +166,9 @@ get_txt_sub_issue_dt <- function(dt,
 #'   represents a language sheet in the Translation Database.
 #' @param pattern Character string representing the regular expression used to identify text substitution tokens in the Original/Translation text.
 #'  Defaults to matching tokens like `%rostertitle%`.
+#' @param keep_statuses Character vector. Statuses whose text items are not checked and whose
+#'   'Status' is therefore never overwritten with `"to be checked"`. Matched case-insensitively
+#'   and ignoring the apostrophe variant. `"outdated"` is always kept.
 #'
 #' @return Returns a list of translations, similar in structure to the input `tdb`, but with the 'Status'
 #'   column updated for entries with identified mismatches and a 'Comment/Note' added to explain the issue.
@@ -174,15 +177,25 @@ get_txt_sub_issue_dt <- function(dt,
 #'
 syntax_check <- function(
     tdb = list(),
-    pattern="%[a-zA-Z0-9_]+%"
+    pattern="%[a-zA-Z0-9_]+%",
+    keep_statuses = c("outdated", "don't translate")
 ) {
+  assertthat::assert_that(is.character(keep_statuses), msg = "'keep_statuses' must be a character vector.")
+
   # Copy list to avoid replacement in place
   tdb.fun <- copy(tdb)
 
-  #Identify Text Substitution issues for each translation - But the one in Status "outdated"
+  # Text items in these statuses are not checked, so their Status/Comment is left alone.
+  # An item may well carry a Translation and still be e.g. "don't translate".
+  # "outdated" is always kept, flagging it would resurrect an item that left the script.
+  keep.statuses <- normalize_status(unique(c("outdated", keep_statuses)))
+  to.check <- function(dt) dt[!normalize_status(Status) %chin% keep.statuses & !is.na(Translation)]
+
+  #Identify Text Substitution issues for each translation - But the ones in a kept Status
   list.txtsub.issues <- purrr::map(
     .x = names(tdb),
-    .f = ~ get_txt_sub_issue_dt(tdb.fun[[.x]][!Status %chin% c("outdated") & !is.na(Translation)],
+    .f = ~ get_txt_sub_issue_dt(to.check(tdb.fun[[.x]]),
+                               pattern=pattern,
                                lang=.x)
   )
   list.txtsub.issues <- setNames(list.txtsub.issues, names(tdb.fun))
@@ -190,7 +203,7 @@ syntax_check <- function(
   #Identify html-tag issues
   list.html.issues <- purrr::map(
     .x = names(tdb.fun),
-    .f = ~ get_htmltag_issue_dt(tdb.fun[[.x]][!Status %chin% c("outdated") & !is.na(Translation)],
+    .f = ~ get_htmltag_issue_dt(to.check(tdb.fun[[.x]]),
                                 lang=.x)
   )
   list.html.issues <- setNames(list.html.issues, names(tdb.fun))

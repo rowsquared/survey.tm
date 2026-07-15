@@ -51,11 +51,17 @@ apostrophe variant are not reliable. Compare via `normalize_status()` in `R/util
 than with raw `==`. The package itself only relies on `"outdated"` (set by `update_tdb()` for
 items that left the questionnaire) and `"to translate"`.
 
-**An empty `Translation` does not mean "needs translating".** `update_tdb()` resets items with
-no translation to `"to translate"`, but statuses like `"don't translate"` legitimately never
-have one and must survive a re-run — that is what `keep_statuses` protects. Beware of
-`Status != "x"` in an `i` expression: `NA != "x"` is `NA`, so rows with a blank status are
-silently skipped. Use `!normalize_status(Status) %chin% ...`, which yields `FALSE` for `NA`.
+**Some statuses must never be written over.** Both `update_tdb()` and `syntax_check()` take a
+`keep_statuses` argument (default `c("outdated", "don't translate")`) naming statuses the
+function must leave alone; `"outdated"` is force-added in both, as it drives the
+reappeared/removed logic. Any new function that writes `Status` should honour the same
+argument. The two traps behind past bugs here:
+
+- An empty `Translation` does not mean "needs translating" (`"don't translate"` never has one),
+  and conversely a kept status may well *have* a Translation — so filtering on the
+  Translation column alone is not enough; check the Status.
+- `Status != "x"` in an `i` expression silently skips blank statuses, because `NA != "x"` is
+  `NA`, not `TRUE`. Use `!normalize_status(Status) %chin% ...`, which yields `FALSE` for `NA`.
 
 ## Conventions
 

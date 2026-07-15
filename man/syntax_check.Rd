@@ -4,7 +4,11 @@
 \alias{syntax_check}
 \title{Identify Software-Related Mismatches in Translations}
 \usage{
-syntax_check(tdb = list(), pattern = "\%[a-zA-Z0-9_]+\%")
+syntax_check(
+  tdb = list(),
+  pattern = "\%[a-zA-Z0-9_]+\%",
+  keep_statuses = c("outdated", "don't translate")
+)
 }
 \arguments{
 \item{tdb}{List of translations as created by \code{get_tdb_data()} or \code{update_tdb()}, where each list element
@@ -12,6 +16,10 @@ represents a language sheet in the Translation Database.}
 
 \item{pattern}{Character string representing the regular expression used to identify text substitution tokens in the Original/Translation text.
 Defaults to matching tokens like \verb{\%rostertitle\%}.}
+
+\item{keep_statuses}{Character vector. Statuses whose text items are not checked and whose
+'Status' is therefore never overwritten with \code{"to be checked"}. Matched case-insensitively
+and ignoring the apostrophe variant. \code{"outdated"} is always kept.}
 }
 \value{
 Returns a list of translations, similar in structure to the input \code{tdb}, but with the 'Status'
