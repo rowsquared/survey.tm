@@ -6,7 +6,7 @@
 \usage{
 add_translation_odk(
   tdb = list(),
-  gs = NULL,
+  ss = NULL,
   sheets = c("survey", "choices"),
   translation.to.add = NULL,
   types = NULL
@@ -15,7 +15,7 @@ add_translation_odk(
 \arguments{
 \item{tdb}{TODO}
 
-\item{gs}{Identifier of a Google Sheet (see \code{\link[googlesheets4:sheets_id]{googlesheets4::sheets_id()}}) that contains ODK questionnaire file}
+\item{ss}{Identifier of a Google Sheet (see \code{\link[googlesheets4:sheets_id]{googlesheets4::sheets_id()}}) that contains ODK questionnaire file}
 
 \item{sheets}{TODO}
 

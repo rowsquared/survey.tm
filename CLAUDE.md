@@ -45,6 +45,18 @@ Solutions falls back to the original text. Guard any `paste0()` on `Translation`
 `fifelse(is.na(Translation), NA_character_, ...)`; a bare `paste0()` produces the literal
 string `"NA"` and ships it to the Designer.
 
+**The `Status` vocabulary is not defined in code.** Statuses live in the Google Sheet
+template's dropdown and are typed/picked by translators, so casing, padding and the
+apostrophe variant are not reliable. Compare via `normalize_status()` in `R/utils.R` rather
+than with raw `==`. The package itself only relies on `"outdated"` (set by `update_tdb()` for
+items that left the questionnaire) and `"to translate"`.
+
+**An empty `Translation` does not mean "needs translating".** `update_tdb()` resets items with
+no translation to `"to translate"`, but statuses like `"don't translate"` legitimately never
+have one and must survive a re-run — that is what `keep_statuses` protects. Beware of
+`Status != "x"` in an `i` expression: `NA != "x"` is `NA`, so rows with a blank status are
+silently skipped. Use `!normalize_status(Status) %chin% ...`, which yields `FALSE` for `NA`.
+
 ## Conventions
 
 - data.table throughout, and `NAMESPACE` has `import(data.table)`, so data.table functions

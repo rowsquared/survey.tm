@@ -3,7 +3,10 @@
 #' @inheritParams  update_tdb
 #' @noRd
 update_tdb_lelement <- function(tdb,
-                                source_titems) {
+                                source_titems,
+                                keep_statuses = c("outdated", "don't translate")) {
+  # "outdated" drives the reappeared/no-longer-in-script logic below, so it is always kept
+  keep.statuses <- normalize_status(unique(c("outdated", keep_statuses)))
   # First Scenarion: Text Items exist in current Translation sheet and is found again in Master Questionnaire
   dt1 <- tdb[as.character(value.unique) %chin% source_titems$value.unique]
   #If a text item reappears, change status to "to translate" & Leave a note
@@ -34,8 +37,11 @@ update_tdb_lelement <- function(tdb,
     dt1, dt2, dt3
   ), fill = TRUE)
 
-  # Set Status to "to translate" if NA
-  dt[is.na(Translation) & Status!="outdated" , Status := "to translate"]
+  # Set Status to "to translate" if NA.
+  # Statuses in `keep_statuses` legitimately have no Translation and must survive a re-run,
+  # otherwise e.g. "don't translate" would be reset on every update.
+  dt[is.na(Translation) & !normalize_status(Status) %chin% keep.statuses,
+     Status := "to translate"]
 
   # Get in current sequential order, using the Master Questionnaire as reference
   dt <- merge(dt, source_titems[, .(value.unique, seq.id)], by = "value.unique", all.x = T)
@@ -53,6 +59,9 @@ update_tdb_lelement <- function(tdb,
 #'
 #' @param tdb List of translation database as returned by [get_tdb_data()]
 #' @param source_titems Data table of questionnaire text items returned by either [parse_odk_titems()] or [parse_suso_titems()]
+#' @param keep_statuses Character vector. Statuses for which an empty 'Translation' is legitimate
+#'   and which therefore must not be reset to `"to translate"` on a re-run. Matched
+#'   case-insensitively and ignoring the apostrophe variant. `"outdated"` is always kept.
 #'
 #' @return List of updated translation database
 #'
@@ -68,9 +77,11 @@ update_tdb_lelement <- function(tdb,
 
 
 update_tdb <- function(tdb = list(),
-                               source_titems = data.table()) {
+                               source_titems = data.table(),
+                               keep_statuses = c("outdated", "don't translate")) {
   assertthat::assert_that(is.list(tdb), msg = "'tdb' must be a list.")
   assertthat::assert_that(is.data.table(source_titems), msg = "'source_titems' must be a data.table.")
+  assertthat::assert_that(is.character(keep_statuses), msg = "'keep_statuses' must be a character vector.")
 
 
   # Check if new.items data.table has required columns
@@ -91,7 +102,8 @@ update_tdb <- function(tdb = list(),
     .x = languages,
     .f = ~ update_tdb_lelement(
       tdb = tdb[[.x]],
-      source_titems = source_titems
+      source_titems = source_titems,
+      keep_statuses = keep_statuses
     )
   )
   updated.trans.sheets <- stats::setNames(updated.trans.sheets, c(languages))

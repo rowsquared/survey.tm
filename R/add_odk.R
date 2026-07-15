@@ -2,7 +2,7 @@
 #' Add translation to ODK Questionnaire File
 #'
 #' @param tdb TODO
-#' @param gs Identifier of a Google Sheet (see [googlesheets4::sheets_id()]) that contains ODK questionnaire file
+#' @param ss Identifier of a Google Sheet (see [googlesheets4::sheets_id()]) that contains ODK questionnaire file
 #' @param sheets TODO
 #' @param translation.to.add TODO
 #' @param types TODO

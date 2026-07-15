@@ -6,6 +6,18 @@ create.unique.var <- function(dt, regex = " ",col="value") {
 }
 
 
+#' Normalise a 'Status' value for comparison
+#'
+#' Statuses are typed/picked by Translators in the Google Sheet, so casing, padding and the
+#' apostrophe variant (Google Sheets may produce a typographic one) are not reliable.
+#' Compare normalised values rather than raw ones. Returns NA for NA.
+#' @noRd
+normalize_status <- function(x) {
+  x <- stringr::str_replace_all(as.character(x), "[‘’ʼ´`]", "'")
+  stringr::str_to_lower(stringr::str_trim(x))
+}
+
+
 
 #' Check if Translation Database Object has all required columns
 #' Returns boolean

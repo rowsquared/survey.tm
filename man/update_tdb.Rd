@@ -4,12 +4,20 @@
 \alias{update_tdb}
 \title{Compares 'Source Questionnaire' data against 'Translation Database'}
 \usage{
-update_tdb(tdb = list(), source_titems = data.table())
+update_tdb(
+  tdb = list(),
+  source_titems = data.table(),
+  keep_statuses = c("outdated", "don't translate")
+)
 }
 \arguments{
 \item{tdb}{List of translation database as returned by \code{\link[=get_tdb_data]{get_tdb_data()}}}
 
 \item{source_titems}{Data table of questionnaire text items returned by either \code{\link[=parse_odk_titems]{parse_odk_titems()}} or \code{\link[=parse_suso_titems]{parse_suso_titems()}}}
+
+\item{keep_statuses}{Character vector. Statuses for which an empty 'Translation' is legitimate
+and which therefore must not be reset to \code{"to translate"} on a re-run. Matched
+case-insensitively and ignoring the apostrophe variant. \code{"outdated"} is always kept.}
 }
 \value{
 List of updated translation database
