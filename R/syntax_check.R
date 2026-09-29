@@ -34,17 +34,7 @@ get_htmltag_issue_dt <- function(dt,
       return(FALSE)
     }
 
-    # Convert to named vectors (if they are not already)
-    tags1 <- as.vector(tags1)
-    names(tags1) <- names(tags1)
-    tags2 <- as.vector(tags2)
-    names(tags2) <- names(tags2)
-
-    # Sort by names
-    # tags1 <- tags1[order(names(tags1))]
-    # tags2 <- tags2[order(names(tags2))]
-
-    # Check if they have the same names and the same counts
+    # table() sorts by tag name, so compare both the names and their counts.
     identical(tags1, tags2)
   }
   # Apply the comparison function to each row

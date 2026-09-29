@@ -69,6 +69,21 @@ get_tdb_data <- function(ss = "",
 
 
 
+#' Prepare columns for writing to the Translation Database
+#' @noRd
+prepare_tdb_write_data <- function(dt) {
+  assertthat::assert_that(is.data.table(dt), msg = "'dt' must be a data.table.")
+  check.cols <- check.tdb.cols(dt)
+  assertthat::assert_that(check.cols$result,
+    msg = paste0("'dt' does not contain expected column(s): ",
+      paste(check.cols$missing.cols, collapse = ", ")))
+  required_cols <- c("value.unique", "Questionnaire(s)", "Type", "Text_Item", "Status", "Translation", "Comment/Note")
+  extra_cols <- setdiff(names(dt), required_cols)
+  assertthat::assert_that(length(extra_cols) == 0,
+    msg = paste("'dt' contains unexpected column(s):", paste(extra_cols, collapse = ", ")))
+  copy(dt)[, ..required_cols]
+}
+
 #' Write one data.table to 'Translation Database' Google Sheet
 #'
 #' A simple wrapper for [googlesheets4::range_write()]. Writes a data.table to the specified
@@ -109,26 +124,13 @@ write_tdb_data <- function(dt,
                            range = "A2:G",
                            col_names = FALSE) {
 
-  #TODO: For now ignores if user made any colorder changes to dt after pulling from GS. Would break all.
-
-  # Check input
-  assertthat::assert_that(is.data.table(dt), msg = "'dt' must be a data.table.")
-  #Got all Cols?
-  check.cols <- check.tdb.cols(dt)
-  assertthat::assert_that(check.cols$result,
-                          msg =  paste0(
-                            "'dt'does not contain expected column(s): ",
-                            paste(check.cols$missing.cols, collapse = ", ")
-                          )
-                          )
+  # Check input and align values with the fixed Google Sheet column order.
+  dt <- prepare_tdb_write_data(dt)
   assertthat::assert_that(is.character(ss) && nchar(ss) > 0, msg = "'ss' must be a non-empty character string.")
   assertthat::assert_that(is.character(sheet) && nchar(sheet) > 0, msg = "'sheet' must be a non-empty character string.")
   assertthat::assert_that(is.character(range) && nchar(range) > 0, msg = "'range' must be a non-empty character string.")
   assertthat::assert_that(is.logical(col_names) && length(col_names) == 1, msg = "'col_names' must be a single logical value.")
 
-  #Dynamically check how many cols there to update the range
-  end.col <- letters[ncol(dt)]
-  range <- paste("A2",end.col,sep=":")
   googlesheets4::range_write(
     ss = ss,
     data = dt,

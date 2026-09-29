@@ -22,7 +22,7 @@ create_suso_file(
 
 \item{sheets}{Character vector. For which sheets of questionnaire template file language will be added. Default all sheets that are found in template file}
 
-\item{statuses}{Character vector. Which text items of which statuses from Translation Google Sheet should be merged?}
+\item{statuses}{Character vector. Which text items of which statuses from Translation Google Sheet should be merged? Matched without regard to case, surrounding spaces, or apostrophe variant.}
 
 \item{qcode_pattern}{Regular expression that matches question coding. Should be specified if used in \code{parse_suso_titems()}.}
 }

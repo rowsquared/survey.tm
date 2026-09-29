@@ -13,7 +13,7 @@ create.unique.var <- function(dt, regex = " ",col="value") {
 #' Compare normalised values rather than raw ones. Returns NA for NA.
 #' @noRd
 normalize_status <- function(x) {
-  x <- stringr::str_replace_all(as.character(x), "[‘’ʼ´`]", "'")
+  x <- stringr::str_replace_all(as.character(x), "[\u2018\u2019\u02bc\u00b4`]", "'")
   stringr::str_to_lower(stringr::str_trim(x))
 }
 

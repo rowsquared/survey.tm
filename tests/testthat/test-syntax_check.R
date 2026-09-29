@@ -25,6 +25,15 @@ test_that("syntax_check flags a genuine html-tag issue", {
   expect_match(result$German$`Comment/Note`, "Difference in count of html-tag")
 })
 
+test_that("syntax_check detects different HTML tags with the same counts", {
+  result <- run_check(tdb = make_tdb(
+    "translated", text_item = "<b>ADMIN 0</b>", translation = "<i>ADMIN 0</i>"
+  ))
+
+  expect_equal(result$German$Status, "to be checked")
+  expect_match(result$German$`Comment/Note`, "Difference in count of html-tag")
+})
+
 
 test_that("syntax_check does not touch a text item that is not to be translated", {
   # The item has a Translation and a real html issue, but must not be flagged

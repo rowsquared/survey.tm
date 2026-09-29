@@ -60,3 +60,30 @@ test_that("create_suso_file writes an empty Translation cell for items excluded 
 
   expect_equal(result$Translation, c("I1. Verwaltung 0", NA_character_))
 })
+
+test_that("create_suso_file matches statuses regardless of case and spacing", {
+  path <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(path), add = TRUE)
+
+  tdb <- copy(tdb_language_testthat)
+  tdb[1, Status := " Reviewed "]
+  create_suso_file(tdb, source_questionnaire_testthat, path,
+                   qcode_pattern = qcode_pattern_testthat)
+
+  result <- as.data.table(readxl::read_xlsx(path, sheet = "Translations"))
+  expect_equal(result$Translation, c("I1. Verwaltung 0", NA_character_))
+})
+
+test_that("create_suso_file writes a workbook when every status is excluded", {
+  path <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(path), add = TRUE)
+
+  tdb <- copy(tdb_language_testthat)
+  tdb[, Status := "don't translate"]
+  create_suso_file(tdb, source_questionnaire_testthat, path,
+                   qcode_pattern = qcode_pattern_testthat)
+
+  expect_true(file.exists(path))
+  result <- as.data.table(readxl::read_xlsx(path, sheet = "Translations"))
+  expect_true(all(is.na(result$Translation)))
+})

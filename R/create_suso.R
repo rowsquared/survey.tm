@@ -120,7 +120,7 @@ create_suso_sheet <- function(source_questionnaire = "",
 #' @param path Character. Writable file path where Translation File should be stored at, including file name and extension
 #' @param sheets Character vector. For which sheets of questionnaire template file language will be added. Default all sheets that are found in template file
 #' @param qcode_pattern Regular expression that matches question coding. Should be specified if used in `parse_suso_titems()`.
-#' @param statuses Character vector. Which text items of which statuses from Translation Google Sheet should be merged?
+#' @param statuses Character vector. Which text items of which statuses from Translation Google Sheet should be merged? Matched without regard to case, surrounding spaces, or apostrophe variant.
 #'
 #' @importFrom "stats" "setNames"
 #'
@@ -192,21 +192,18 @@ create_suso_file <- function(tdb.language,
   if (is.null(sheets)) sheets <- names(source_questionnaire)
 
   # Filter by Statuses
-  language.tdb.dt <- tdb.language[Status %in% statuses]
+  language.tdb.dt <- tdb.language[normalize_status(Status) %chin% normalize_status(statuses)]
 
-  # If there is no language in our preferred statuses, return simply the questionnaire
+  # If no statuses match, still write the source template with empty Translation cells.
   if (nrow(language.tdb.dt) == 0) {
-    message("No language found that is in Status as supplied in 'statuses'. Empty ")
-    message("No excel file generated")
-    return()
+    message("No text items match 'statuses'; writing the questionnaire with empty Translation cells.")
+  } else {
+    message(paste0(
+      "Translated Text Items with Status(es): ",
+      paste(paste0("'", unique(language.tdb.dt$Status), "'"), collapse = ", "),
+      " are added to the Questionnaire File"
+    ))
   }
-
-  # Print to console first status
-  message(paste0(
-    "Translated Text Items with Status(es): ",
-    paste(paste0("'", unique(language.tdb.dt$Status), "'"), collapse = ", "),
-    " are added to the Questionnaire File"
-  ))
 
 
   # Add Translation by Sheet. Results in Translation Workbook list

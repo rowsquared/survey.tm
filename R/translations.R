@@ -9,12 +9,11 @@ update_tdb_lelement <- function(tdb,
   keep.statuses <- normalize_status(unique(c("outdated", keep_statuses)))
   # First Scenarion: Text Items exist in current Translation sheet and is found again in Master Questionnaire
   dt1 <- tdb[as.character(value.unique) %chin% source_titems$value.unique]
-  #If a text item reappears, change status to "to translate" & Leave a note
+  # Mark reappeared items for review and leave a note if the comment is blank.
   comment <- "Item reappeared in CAPI script."
-  dt1[Status=="outdated" & is.na(`Comment/Note`),
-     `Comment/Note`:=fcase(!is.na(`Comment/Note`),paste0(`Comment/Note`,"\n",comment),
-                           is.na(`Comment/Note`),comment)]
-  dt1[Status=="outdated",Status:="to be checked"]
+  dt1[normalize_status(Status) %chin% "outdated" & is.na(`Comment/Note`),
+      `Comment/Note` := comment]
+  dt1[normalize_status(Status) %chin% "outdated", Status := "to be checked"]
 
   # Second Scenario: New items in Source Questionnaire not found yet in Translation Sheet
   dt2 <- source_titems[

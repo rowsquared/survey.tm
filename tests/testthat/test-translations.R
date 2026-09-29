@@ -92,3 +92,14 @@ test_that("update_tdb keeps 'outdated' even if keep_statuses omits it", {
 
   expect_equal(result$German[value.unique == "admin0", Status], "outdated")
 })
+
+test_that("update_tdb recognizes a reappeared item with a padded outdated status", {
+  result <- update_tdb(
+    tdb = make_tdb(" Outdated ", translation = "Verwaltung 0"),
+    source_titems = source_titems_testthat
+  )
+
+  expect_equal(result$German[value.unique == "admin0", Status], "to be checked")
+  expect_equal(result$German[value.unique == "admin0", `Comment/Note`],
+               "Item reappeared in CAPI script.")
+})
