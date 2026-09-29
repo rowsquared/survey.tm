@@ -8,7 +8,7 @@ parse_suso_titems(
   tmpl_list,
   sheets = NULL,
   types = c("Title", "Instruction", "OptionTitle", "ValidationMessage", "SpecialValue",
-    "FixedRosterTitle"),
+    "FixedRosterTitle", "CriticalRuleMessage"),
   collapse = TRUE,
   qcode_pattern = NULL
 )
@@ -18,7 +18,8 @@ parse_suso_titems(
 
 \item{sheets}{A character vector of sheet names within \code{tmpl_list} files to be parsed. By default, all sheets are parsed.}
 
-\item{types}{A character vector specifying the types of text items to keep.}
+\item{types}{A character vector specifying the types of text items to keep.
+By default, includes \code{CriticalRuleMessage}. Supply a subset to exclude types.}
 
 \item{collapse}{Boolean. If TRUE, only unique text items will be returned.}
 

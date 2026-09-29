@@ -9,7 +9,7 @@ parse_suso_titems.by.qx <- function(
     sheets = NULL,
     types = c(
       "Title", "Instruction", "OptionTitle", "ValidationMessage",
-      "SpecialValue", "FixedRosterTitle"
+      "SpecialValue", "FixedRosterTitle", "CriticalRuleMessage"
     )) {
 
   # Keep only subset of sheets
@@ -21,7 +21,7 @@ parse_suso_titems.by.qx <- function(
   dt <- rbindlist(
     lapply(questionnaire_list, function(sheet) {
       sheet[
-        Type %chin% types | is.na(Type),
+        Type %chin% types | (is.na(Type) & "OptionTitle" %in% types),
         .(
           type = Type,
           value = `Original text`
@@ -50,7 +50,8 @@ parse_suso_titems.by.qx <- function(
 #'
 #' @param tmpl_list A named nested list as returned by \code{\link{get_suso_tfiles}} (Source Questionnaire object)
 #' @param sheets A character vector of sheet names within `tmpl_list` files to be parsed. By default, all sheets are parsed.
-#' @param types  A character vector specifying the types of text items to keep.
+#' @param types A character vector specifying the types of text items to keep.
+#'   By default, includes `CriticalRuleMessage`. Supply a subset to exclude types.
 #' @param collapse Boolean. If TRUE, only unique text items will be returned.
 #' @param qcode_pattern Optional. Regex pattern to remove question codes, e.g., "Q1." in "Q1. How old are you?". Default is NULL, keeping texts unmodified.
 #' @import data.table
@@ -72,14 +73,18 @@ parse_suso_titems <- function(tmpl_list,
                                 sheets = NULL,
                                 types = c(
                                   "Title", "Instruction", "OptionTitle", "ValidationMessage",
-                                  "SpecialValue", "FixedRosterTitle"
+                                  "SpecialValue", "FixedRosterTitle", "CriticalRuleMessage"
                                 ),
                               collapse = TRUE,
                               qcode_pattern=NULL
                               ) {
   # Check input
-  # Types
-  types <- match.arg(types, several.ok = T)
+  # Allow callers to provide arbitrary subsets of Survey Solutions Type values.
+  # match.arg() would silently reduce unknown values to the default choices.
+  assertthat::assert_that(
+    is.character(types),
+    msg = "'types' must be a character vector."
+  )
 
 
   # Translation
